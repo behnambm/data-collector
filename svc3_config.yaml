@@ -1,0 +1,15 @@
+service1name: svc1
+service1host: 0.0.0.0
+service1port: 1111
+
+
+service2name: svc2
+service2host: 0.0.0.0
+service2port: 2222
+
+timeout: 500
+
+dbconfig:
+  dbname: database.sqlite
+
+
