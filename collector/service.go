@@ -2,11 +2,17 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/behnambm/data-collector/common/types"
 	log "github.com/sirupsen/logrus"
 	"sync"
 	"time"
+)
+
+var (
+	ErrTimeout           = errors.New("timeout")
+	ErrStoreResultFailed = errors.New("storing result failed")
 )
 
 type Dialler interface {
@@ -81,10 +87,18 @@ func (s *Service) GetResult() error {
 	select {
 	case <-s.doneCh:
 		log.Infoln("ALL DONE")
-		return s.storeResult(types.ResultStatusSuccess)
+		if err := s.storeResult(types.ResultStatusSuccess); err != nil {
+			log.Errorln("storeResult error:", err)
+			return ErrStoreResultFailed
+		}
+		return nil
 	case <-time.After(time.Duration(s.cfg.Timeout) * time.Millisecond):
 		log.Errorln("TIMEOUT")
-		return s.storeResult(types.ResultStatusFailure)
+		if err := s.storeResult(types.ResultStatusFailure); err != nil {
+			log.Errorln("storeResult error:", err)
+			return ErrStoreResultFailed
+		}
+		return ErrTimeout
 	}
 }
 
