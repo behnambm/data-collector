@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/behnambm/data-collector/common/types"
+	"github.com/behnambm/data-collector/common/wrappers"
 	log "github.com/sirupsen/logrus"
 	"sync"
 	"time"
@@ -108,13 +109,14 @@ func (s *Service) getData(serviceName string) {
 	req := &types.GetDataRequest{}
 	res := &types.GetDataResponse{}
 
-	start := time.Now()
+	elapsed := wrappers.Timer(
+		func() {
+			// TODO: the returning error of Call also can be stored in ServiceResult to be able to process afterward
+			s.dialler.Call(serviceName, "ServiceRPC.GetData", req, res)
+		},
+	)()
 
-	// TODO: the returning error of Call also can be stored in ServiceResult to be able to process afterward
-	s.dialler.Call(serviceName, "ServiceRPC.GetData", req, res)
-	elapsed := time.Since(start)
-
-	fmt.Printf("time elapsed for (%s): %d\n", serviceName, elapsed.Milliseconds())
+	log.Debugf("time elapsed for (%s): %d\n", serviceName, elapsed.Milliseconds())
 
 	s.result[serviceName] = elapsed.Milliseconds()
 }
