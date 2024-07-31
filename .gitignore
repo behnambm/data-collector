@@ -2,3 +2,6 @@
 
 bin/
 bin/*
+
+*.sqlite
+*.db
