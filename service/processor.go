@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/behnambm/data-collector/types"
+	"github.com/behnambm/data-collector/common/types"
 	"math/rand"
 	"time"
 )

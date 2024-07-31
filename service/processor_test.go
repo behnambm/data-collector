@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/behnambm/data-collector/types"
+	"github.com/behnambm/data-collector/common/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

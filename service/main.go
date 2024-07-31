@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/behnambm/data-collector/config"
+	"github.com/behnambm/data-collector/common/config"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"net/rpc"
@@ -20,13 +20,13 @@ func main() {
 		log.Fatalf("Unable to initialize request processor: %v\n", err)
 	}
 
-	svc1RPC, err := NewService1RPC(reqProcessor)
+	svcRPC, err := NewServiceRPC(reqProcessor)
 	if err != nil {
 		log.Fatalf("Unable to initialize service: %v\n", err)
 	}
 
 	server := rpc.NewServer()
-	err = server.RegisterName("ServiceRPC", svc1RPC)
+	err = server.RegisterName("ServiceRPC", svcRPC)
 	if err != nil {
 		log.Fatalf("Unable to initialize RPC: %v\n", err)
 	}
