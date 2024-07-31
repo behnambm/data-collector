@@ -39,6 +39,4 @@ func main() {
 	if err = service.GetResult(); err != nil {
 		fmt.Println("GetResult error: ", err)
 	}
-
-	// graceful shutdown
 }

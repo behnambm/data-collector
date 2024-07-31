@@ -6,6 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net"
 	"net/rpc"
+	"os"
+	"os/signal"
 )
 
 func main() {
@@ -41,5 +43,15 @@ func main() {
 		cfg.ServiceName, cfg.Host, cfg.Port,
 	)
 
-	server.Accept(listener)
+	go server.Accept(listener)
+
+	// handle graceful shutdown
+	signalCh := make(chan os.Signal)
+	signal.Notify(signalCh, os.Kill, os.Interrupt)
+	sig := <-signalCh
+
+	// this will make OS be able to do force close
+	signal.Reset(sig)
+	log.Infoln("Shutting down, please wait...")
+	listener.Close()
 }
