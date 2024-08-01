@@ -12,12 +12,12 @@ type RequestProcessor struct {
 	serviceName string
 }
 
-func NewRequestProcessor(cfg *Config) (*RequestProcessor, error) {
+func NewRequestProcessor(min, max int, serviceName string) *RequestProcessor {
 	return &RequestProcessor{
-		minDelay:    cfg.MinDelay,
-		maxDelay:    cfg.GetMaxDelay(),
-		serviceName: cfg.ServiceName,
-	}, nil
+		minDelay:    min,
+		maxDelay:    max,
+		serviceName: serviceName,
+	}
 }
 
 func (rp *RequestProcessor) Process(req *types.GetDataRequest, res *types.GetDataResponse) error {
@@ -25,7 +25,7 @@ func (rp *RequestProcessor) Process(req *types.GetDataRequest, res *types.GetDat
 
 	// make sure the maxDelay is greater than zero, otherwise the math.Intn will panic
 	if rp.maxDelay > 0 {
-		delay = time.Duration(rp.minDelay+rand.Intn(rp.maxDelay)) * time.Millisecond
+		delay = time.Duration(rp.minDelay+rand.Intn(rp.getMaxDelay())) * time.Millisecond
 	} else {
 		delay = time.Duration(rp.minDelay) * time.Millisecond
 	}
@@ -35,4 +35,14 @@ func (rp *RequestProcessor) Process(req *types.GetDataRequest, res *types.GetDat
 	res.Data = "Data from " + rp.serviceName
 
 	return nil
+}
+
+func (rp *RequestProcessor) getMaxDelay() int {
+	if rp.minDelay < 0 || rp.maxDelay < 0 {
+		return 0
+	}
+	if rp.maxDelay > rp.minDelay {
+		return rp.maxDelay - rp.minDelay
+	}
+	return 0
 }
