@@ -1,15 +1,25 @@
 build-svc:
-	@go build -o service/bin/svc service/*.go
-
-build-svc3:
-	@go build -o collector/bin/svc collector/*.go
+	@CGO_ENABLED=0 go build -o service/bin/svc service/*.go
 
 svc1: build-svc
-	@service/bin/svc -c svc1_config.yaml
+	@service/bin/svc -c configs/svc1_config.yaml
 
 svc2: build-svc
-	@service/bin/svc -c svc2_config.yaml
+	@service/bin/svc -c configs/svc2_config.yaml
 
-svc3: build-svc3
-	@collector/bin/svc -c svc3_config.yaml
+svc3:
+	@# didn't disable the CGO because the sqlite needs it
+	@go build -o collector/bin/svc3 collector/*.go
+	@collector/bin/svc3 -c configs/svc3_config.yaml
+
+down:
+	docker compose down
+
+up:
+	CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o service/bin/svc service/*.go
+	docker build -t data-collector:latest -f Dockerfile .
+	docker compose up $(ARGS)
+
+test:
+	@go test ./... -v
 

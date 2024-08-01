@@ -1,0 +1,23 @@
+services:
+  service1:
+    image: data-collector:latest
+    environment:
+      SERVICENAME: svc1
+      MINDELAY: 300
+      MAXDELAY: 600
+      HOST: 0.0.0.0
+      PORT: 1111
+    ports:
+      - "1111:1111"
+
+  service2:
+    image: data-collector:latest
+    environment:
+      SERVICENAME: svc2
+      MINDELAY: 300
+      MAXDELAY: 600
+      HOST: 0.0.0.0
+      PORT: 2222
+    ports:
+      - "2222:2222"
+
