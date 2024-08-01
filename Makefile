@@ -17,7 +17,7 @@ down:
 
 up:
 	CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o service/bin/svc service/*.go
-	docker build -t data-collector:latest -f Dockerfile .
+	docker build -t data-collector:latest -f service/Dockerfile ./service
 	docker compose up $(ARGS)
 
 test:
