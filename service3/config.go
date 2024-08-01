@@ -1,6 +1,6 @@
 package main
 
-import "github.com/behnambm/data-collector/collector/storage/sqlite"
+import "github.com/behnambm/data-collector/service3/storage/sqlite"
 
 type Config struct {
 	// Service1Name is just for making a difference among other services
