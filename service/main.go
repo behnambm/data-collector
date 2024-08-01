@@ -17,10 +17,7 @@ func main() {
 		log.Fatalf("Unable to load configs: %v\n", err)
 	}
 
-	reqProcessor, err := NewRequestProcessor(cfg)
-	if err != nil {
-		log.Fatalf("Unable to initialize request processor: %v\n", err)
-	}
+	reqProcessor := NewRequestProcessor(cfg.MinDelay, cfg.MaxDelay, cfg.ServiceName)
 
 	svcRPC, err := NewServiceRPC(reqProcessor)
 	if err != nil {
