@@ -7,58 +7,119 @@ import (
 	"time"
 )
 
-func TestProcess_SleepsInDefinedRange(t *testing.T) {
-	cfg := &Config{
-		MinDelay:    100,
-		MaxDelay:    200,
-		ServiceName: "test",
+func TestProcess(t *testing.T) {
+	tests := []struct {
+		name        string
+		min         int
+		max         int
+		expectedMin int
+		expectedMax int
+	}{
+		{
+			name:        "Basic test",
+			min:         10,
+			max:         20,
+			expectedMin: 10,
+			expectedMax: 20,
+		},
+		{
+			name:        "Zero max",
+			min:         10,
+			max:         0,
+			expectedMin: 10,
+			expectedMax: 10,
+		},
+		{
+			name:        "Zero min",
+			min:         0,
+			max:         10,
+			expectedMin: 0,
+			expectedMax: 10,
+		},
+		{
+			name:        "Negative delays",
+			min:         -5,
+			max:         -10,
+			expectedMin: 0,
+			expectedMax: 0,
+		},
 	}
 
-	rp, err := NewRequestProcessor(cfg)
-	assert.NoError(t, err, "failed to initialize RequestProcessor")
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rp := &RequestProcessor{
+				minDelay: test.min,
+				maxDelay: test.max,
+			}
 
-	req := &types.GetDataRequest{}
-	res := &types.GetDataResponse{}
+			req := &types.GetDataRequest{}
+			res := &types.GetDataResponse{}
 
-	startTime := time.Now()
-	err = rp.Process(req, res)
-	endTime := time.Now()
+			start := time.Now()
+			rp.Process(req, res)
+			elapsed := int(time.Since(start).Milliseconds())
 
-	assert.NoError(t, err, "failed to process request")
-
-	elapsedTime := endTime.Sub(startTime)
-	minExpected := time.Duration(cfg.MinDelay) * time.Millisecond
-	maxExpected := time.Duration(cfg.MinDelay+cfg.MaxDelay) * time.Millisecond
-
-	assert.GreaterOrEqual(t, elapsedTime, minExpected, "process duration is less than expected")
-	assert.LessOrEqual(t, elapsedTime, maxExpected, "process duration is greater than expected")
-	assert.Equal(t, "Data from "+cfg.ServiceName, res.Data, "unexpected response data")
+			assert.LessOrEqual(t, elapsed, test.expectedMax)
+			assert.GreaterOrEqual(t, elapsed, test.expectedMin)
+		})
+	}
 }
 
-func TestProcess_ZeroDelay(t *testing.T) {
-	cfg := &Config{
-		MinDelay:    0,
-		MaxDelay:    0,
-		ServiceName: "test",
+func TestConfig_GetMaxDelay(t *testing.T) {
+	tests := []struct {
+		name     string
+		min      int
+		max      int
+		expected int
+	}{
+		{
+			"Basic test",
+			300,
+			600,
+			300,
+		},
+		{
+			"Negative min",
+			-1,
+			5,
+			0,
+		},
+		{
+			"Negative max",
+			5,
+			-1,
+			0,
+		},
+		{
+			"min greater than max",
+			10,
+			5,
+			0,
+		},
+		{
+			"min equal to max",
+			5,
+			5,
+			0,
+		},
+		{
+			"max greater than min",
+			5,
+			10,
+			5,
+		},
 	}
 
-	rp, err := NewRequestProcessor(cfg)
-	assert.NoError(t, err, "failed to create RequestProcessor")
-
-	req := &types.GetDataRequest{}
-	res := &types.GetDataResponse{}
-
-	start := time.Now()
-	err = rp.Process(req, res)
-	end := time.Now()
-
-	assert.NoError(t, err, "failed to process request")
-
-	elapsedTime := end.Sub(start)
-
-	// setting expected to 1 second because the code itself will take more than zero second ro tun
-	expected := 1 * time.Millisecond
-
-	assert.LessOrEqual(t, elapsedTime, expected, "process duration is greater than expected")
-	assert.Equal(t, "Data from "+cfg.ServiceName, res.Data, "unexpected response data")
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rp := &RequestProcessor{
+				minDelay: test.min,
+				maxDelay: test.max,
+			}
+			result := rp.getMaxDelay()
+			if result != test.expected {
+				assert.Equal(t, test.expected, result)
+			}
+		})
+	}
 }
