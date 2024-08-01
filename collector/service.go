@@ -30,7 +30,7 @@ type Service struct {
 	storage Storage
 	cfg     *Config
 	doneCh  chan struct{}
-	result  map[string]int64
+	result  sync.Map
 	wg      sync.WaitGroup
 }
 
@@ -50,7 +50,7 @@ func NewService(cfg *Config, dialler Dialler, storage Storage) (*Service, error)
 		storage: storage,
 		cfg:     cfg,
 		doneCh:  make(chan struct{}),
-		result:  make(map[string]int64),
+		result:  sync.Map{},
 		wg:      sync.WaitGroup{},
 	}, nil
 }
@@ -118,27 +118,25 @@ func (s *Service) getData(serviceName string) {
 
 	log.Debugf("time elapsed for (%s): %d\n", serviceName, elapsed.Milliseconds())
 
-	s.result[serviceName] = elapsed.Milliseconds()
+	s.result.Store(serviceName, elapsed.Milliseconds())
+}
+
+func (s *Service) loadLatency(serviceName string) int64 {
+	latency, ok := s.result.Load(serviceName)
+	latencyInt64, ok := latency.(int64)
+	if !ok {
+		// returning zero because we also want to save the failed requests
+		return 0
+	}
+	return latencyInt64
 }
 
 func (s *Service) storeResult(status types.ResultStatus) error {
-	svc1Latency, ok := s.result[s.cfg.Service1Name]
-	if !ok {
-		// setting to empty struct because we also want to save the failed requests
-		// if we don't need failed ones then we can simply return an error instead
-		svc1Latency = 0
-	}
-
-	svc2Latency, ok := s.result[s.cfg.Service2Name]
-	if !ok {
-		svc2Latency = 0
-	}
-
 	entry := types.ServiceResultEntry{
 		DateTime:    time.Now(),
 		Status:      status,
-		Svc1Latency: svc1Latency,
-		Svc2Latency: svc2Latency,
+		Svc1Latency: s.loadLatency(s.cfg.Service1Name),
+		Svc2Latency: s.loadLatency(s.cfg.Service2Name),
 	}
 
 	if err := s.storage.Store(context.TODO(), &entry); err != nil {
