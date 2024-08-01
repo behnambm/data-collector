@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/behnambm/data-collector/collector/dialler/rpc"
-	"github.com/behnambm/data-collector/collector/storage/sqlite"
 	"github.com/behnambm/data-collector/common/config"
+	"github.com/behnambm/data-collector/service3/dialler/rpc"
+	"github.com/behnambm/data-collector/service3/storage/sqlite"
 	log "github.com/sirupsen/logrus"
 )
 
