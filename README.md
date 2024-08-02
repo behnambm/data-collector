@@ -1,7 +1,7 @@
 # Overview
 
 According to task description, there should be 3 services. 
-But the project consists of two different components. 
+But the project consists of two different components. (See branch `v2` for separate service implementation)
 
 1. **Service** (2 instances): A server that listens on a port and handles RPC calls.
 2. **Collector** (1 instance): A service that makes concurrent calls to the RPC services and gathers data from them.
@@ -60,7 +60,7 @@ make svc3
 ### Notes
 1. Both approaches use the default configurations found in the `configs` directory.
 You can modify these configurations as needed.
-2. There are two docker files, the reason for that is the network instability of Iran. One builds the binary during build time, the other one just copies the binary from host. 
+2. There are two docker files, the reason for that is the network instability in Iran. One builds the binary during build time, the other one just copies the binary from host. 
 3. The docker files and compose are only written for service 1 & 2.
 
 # Run tests
