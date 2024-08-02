@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	dummyDialler "github.com/behnambm/data-collector/collector/dialler/mock"
-	dummyDB "github.com/behnambm/data-collector/collector/storage/mock"
+	dummyDialler "github.com/behnambm/data-collector/service3/dialler/mock"
+	dummyDB "github.com/behnambm/data-collector/service3/storage/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
