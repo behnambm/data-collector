@@ -1,10 +1,10 @@
 # Overview
 
-According to task description, there should be 3 services. 
-But the project consists of two different components. (See branch `v2` for separate service implementation)
+The project consists of three different services. 
 
-1. **Service** (2 instances): A server that listens on a port and handles RPC calls.
-2. **Collector** (1 instance): A service that makes concurrent calls to the RPC services and gathers data from them.
+1. **Service1**: A server that listens on a port and handles RPC calls.
+2. **Service2**: A server that listens on a port and handles RPC calls.
+3. **Service3**: A service that makes concurrent calls to the `service 1` and `service 2` and gathers data from them.
 
 
 
